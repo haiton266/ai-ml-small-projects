@@ -19,6 +19,11 @@ async def init_engine() -> AsyncLLMEngine:
         gpu_memory_utilization=settings.gpu_memory_utilization,
         dtype=settings.dtype,
         quantization=settings.quantization,
+        # Only pass hf_token when set; vllm also reads HUGGING_FACE_HUB_TOKEN /
+        # HF_TOKEN from the environment directly, so leaving it None is safe.
+        # SecretStr must be unwrapped explicitly — do NOT use str(settings.hf_token),
+        # that would produce the literal string "<secret>" and break authentication.
+        hf_token=settings.hf_token.get_secret_value() if settings.hf_token else None,
     )
     _engine = AsyncLLMEngine.from_engine_args(engine_args)
     return _engine

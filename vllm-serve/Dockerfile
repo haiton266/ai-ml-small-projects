@@ -18,4 +18,14 @@ COPY src/ src/
 RUN uv pip install --system --no-cache --break-system-packages --no-deps .
 
 EXPOSE 8000
+
+# HF_TOKEN must be injected at runtime — never baked into the image layer.
+# Usage examples:
+#   docker run --gpus all -p 8000:8000 \
+#     -e SERVE_MODEL=meta-llama/Llama-3.1-8B-Instruct \
+#     -e HF_TOKEN=<your_token> \
+#     vllm-serve
+#
+# Or via Docker secrets / --env-file (preferred for CI/CD):
+#   docker run --gpus all -p 8000:8000 --env-file .env vllm-serve
 CMD ["python", "-m", "vllm_serve.app"]
